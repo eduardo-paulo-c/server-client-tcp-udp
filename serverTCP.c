@@ -8,25 +8,33 @@
 #define BUFFER_SIZE 4096
 #define FILENAME "file.bin"
 
-void send_file(FILE *file, int client_socket) {
+void send_file(FILE *file, int client_socket)
+{
     char buffer[BUFFER_SIZE];
     size_t bytes_read;
+    int packet_id = 0;
 
-    while ((bytes_read = fread(buffer, 1, BUFFER_SIZE, file)) > 0) {
-        if (send(client_socket, buffer, bytes_read, 0) == -1) {
+    while ((bytes_read = fread(buffer, 1, BUFFER_SIZE, file)) > 0)
+    {
+        if (send(client_socket, buffer, bytes_read, 0) == -1)
+        {
             perror("Erro ao enviar dados");
             exit(EXIT_FAILURE);
         }
+        packet_id++;
     }
+    printf("Arquivo enviado com %d pacotes.\n", packet_id);
 }
 
-int main() {
+int main()
+{
     int server_fd, client_socket;
     struct sockaddr_in server_addr, client_addr;
     socklen_t addr_len = sizeof(client_addr);
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd == -1) {
+    if (server_fd == -1)
+    {
         perror("Erro ao criar socket");
         exit(EXIT_FAILURE);
     }
@@ -35,25 +43,29 @@ int main() {
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(PORT);
 
-    if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1) {
+    if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1)
+    {
         perror("Erro ao fazer bind");
         exit(EXIT_FAILURE);
     }
 
-    if (listen(server_fd, 1) == -1) {
+    if (listen(server_fd, 1) == -1)
+    {
         perror("Erro ao escutar");
         exit(EXIT_FAILURE);
     }
 
     printf("Aguardando conexão...\n");
-    client_socket = accept(server_fd, (struct sockaddr*)&client_addr, &addr_len);
-    if (client_socket == -1) {
+    client_socket = accept(server_fd, (struct sockaddr *)&client_addr, &addr_len);
+    if (client_socket == -1)
+    {
         perror("Erro ao aceitar conexão");
         exit(EXIT_FAILURE);
     }
 
     FILE *file = fopen(FILENAME, "rb");
-    if (!file) {
+    if (!file)
+    {
         perror("Erro ao abrir o arquivo");
         exit(EXIT_FAILURE);
     }
